@@ -1,10 +1,16 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.request.UserCreationRequest;
+import com.example.demo.dto.request.UserUpdateRequest;
 import com.example.demo.dto.response.ApiResponse;
+import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.User;
 import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
+import lombok.AccessLevel;
+import lombok.Builder;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,8 +18,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin(origins = "*")
 @RequestMapping("/users")
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
-    @Autowired
     UserService _userService;
 
     @PostMapping("")
@@ -32,9 +39,14 @@ public class UserController {
         }
     }
 
+    @PutMapping("/{userId}")
+    UserResponse updateUser(@PathVariable String userId, @RequestBody @Valid UserUpdateRequest request) {
+        return _userService.updateUser(userId, request);
+    }
+
     @GetMapping("/{userId}")
-    ResponseEntity<?> getUser(@PathVariable String userId) {
-        return ResponseEntity.ok(_userService.getUser(userId));
+    UserResponse getUser(@PathVariable String userId) {
+        return _userService.getUser(userId);
     }
 
     @DeleteMapping("/{userId}")

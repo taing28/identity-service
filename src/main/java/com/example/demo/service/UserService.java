@@ -1,34 +1,35 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.request.UserCreationRequest;
+import com.example.demo.dto.request.UserUpdateRequest;
+import com.example.demo.dto.response.UserResponse;
 import com.example.demo.entity.User;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
+import com.example.demo.mapper.UserMapper;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.Iservice.IUserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserService implements IUserService {
-    @Autowired
     UserRepository _userRepository;
+    UserMapper _userMapper;
 
     @Override
     public User createRequest(UserCreationRequest request) {
-        User user = new User();
-
         if (_userRepository.existsByUsernameIgnoreCase(request.getUsername().trim())) {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
-        user.setUsername(request.getUsername());
-        user.setPassword(request.getPassword());
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
-        user.setDob(request.getDob());
+        User user = _userMapper.toUser(request);
 
         return _userRepository.save(user);
     }
@@ -39,9 +40,9 @@ public class UserService implements IUserService {
     }
 
     @Override
-    public User getUser(String userId) {
-        return _userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+    public UserResponse getUser(String userId) {
+        return _userMapper.toUserResponse(_userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found")));
     }
 
     @Override
@@ -50,5 +51,14 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         _userRepository.deleteById(userId);
         return user;
+    }
+
+    @Override
+    public UserResponse updateUser(String userId, UserUpdateRequest request) {
+        User user = _userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        _userMapper.updateUser(user, request);
+
+        return _userMapper.toUserResponse(_userRepository.save(user));
     }
 }
