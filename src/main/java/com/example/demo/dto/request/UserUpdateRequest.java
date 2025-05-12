@@ -1,9 +1,5 @@
-package com.example.demo.entity;
+package com.example.demo.dto.request;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -15,12 +11,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-@Entity
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    String id;
-    String username;
+public class UserUpdateRequest {
+    @Size(min = 8, max = 12, message = "PASSWORD_INVALID")
     String password;
     String firstName;
     String lastName;
