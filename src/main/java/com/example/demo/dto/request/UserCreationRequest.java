@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder // help create instance easy
+@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE) // if not define auto private
 public class UserCreationRequest {
     @Size(min = 3, message = "USERNAME_INVALID")
