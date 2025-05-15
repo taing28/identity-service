@@ -45,7 +45,7 @@ public class UserService implements IUserService {
         // Set default role for user
         HashSet<String> roles = new HashSet<>();
         roles.add(Role.USER.name());
-        user.setRoles(roles);
+//        TODO: user.setRoles(roles);
 
         return _userMapper.toUserResponse(_userRepository.save(user));
     }
