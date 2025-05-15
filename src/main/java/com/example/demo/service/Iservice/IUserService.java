@@ -9,10 +9,10 @@ import com.example.demo.service.UserService;
 import java.util.List;
 
 public interface IUserService {
-    User createRequest(UserCreationRequest request);
-    List<User> getUsers();
+    List<UserResponse> getUsers();
     UserResponse getUser(String userId);
-    User removeUser(String userId);
-
+    UserResponse getMyInfo();
+    UserResponse createRequest(UserCreationRequest request);
     UserResponse updateUser(String userId, UserUpdateRequest request);
+    UserResponse removeUser(String userId);
 }
