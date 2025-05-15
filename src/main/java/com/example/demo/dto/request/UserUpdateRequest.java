@@ -10,10 +10,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@FieldDefaults(level = AccessLevel.PRIVATE) // if not define auto private
-public class UserCreationRequest {
-    @Size(min = 3, message = "USERNAME_INVALID")
-    String username;
+@FieldDefaults(level = AccessLevel.PRIVATE)
+public class UserUpdateRequest {
     @Size(min = 8, max = 12, message = "PASSWORD_INVALID")
     String password;
     String firstName;
