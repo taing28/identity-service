@@ -8,6 +8,7 @@ import com.example.demo.enums.Role;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.mapper.UserMapper;
+import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.Iservice.IUserService;
 import lombok.AccessLevel;
@@ -32,6 +33,7 @@ public class UserService implements IUserService {
     UserRepository _userRepository;
     UserMapper _userMapper;
     PasswordEncoder _passwordEncoder;
+    RoleRepository _roleRepository;
 
     @Override
     public UserResponse createRequest(UserCreationRequest request) {
@@ -52,6 +54,7 @@ public class UserService implements IUserService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasAuthority('APPROVE_POST')") authorize by permission
     public List<UserResponse> getUsers() {
         log.info("In method get Users");
         return _userMapper.toUserResponses(_userRepository.findAll());
@@ -87,6 +90,10 @@ public class UserService implements IUserService {
         User user = _userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         _userMapper.updateUser(user, request);
+        user.setPassword(_passwordEncoder.encode(request.getPassword()));
+
+        var roles = _roleRepository.findAllById(request.getRoles());
+        user.setRoles(new HashSet<>(roles));
 
         return _userMapper.toUserResponse(_userRepository.save(user));
     }
