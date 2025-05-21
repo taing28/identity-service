@@ -1,10 +1,13 @@
 package com.example.demo.exception;
 
 import com.example.demo.dto.response.ApiResponse;
+import com.example.demo.service.AuthenticationService;
 import jakarta.validation.ConstraintViolation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -68,14 +71,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
-    @ExceptionHandler(value = AccessDeniedException.class)
-    ResponseEntity<ApiResponse> handlerAccessDeniedException(AccessDeniedException exception) {
+    @ExceptionHandler(value = JwtException.class)
+    ResponseEntity<ApiResponse> handlerJwtException(JwtException exception) {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
 
         return ResponseEntity.status(errorCode.getStatusCode()).body(
                 ApiResponse.builder()
                         .code(errorCode.getCode())
                         .message(errorCode.getMessage())
+                        .build()
+        );
+    }
+
+    @ExceptionHandler(value = AuthenticationException.class)
+    ResponseEntity<ApiResponse> handlerAuthenticationException(AuthenticationException exception) {
+        ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;
+        return ResponseEntity.status(errorCode.getStatusCode()).body(
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(exception.getMessage())
                         .build()
         );
     }

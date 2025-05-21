@@ -25,8 +25,14 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class SecurityConfig {
     private final String[] PUBLIC_ENPOINTS = {"/users",
-            "/auth", "/auth/introspect", "/auth/logout"
+            "/auth", "/auth/introspect", "/auth/logout", "/auth/refresh"
     };
+
+    private final CustomJwtDecoder _customJwtDecoder;
+
+    public SecurityConfig(CustomJwtDecoder _customJwtDecoder) {
+        this._customJwtDecoder = _customJwtDecoder;
+    }
 
     @Value("${JWT_SIGNER_KEY}")
     private String SIGNER_KEY;
@@ -39,7 +45,7 @@ public class SecurityConfig {
 
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->
-                        jwtConfigurer.decoder(jwtDecoder())
+                        jwtConfigurer.decoder(_customJwtDecoder)
                                 .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                         .authenticationEntryPoint(new JwtAuthenticationEntryPoint()) // Customize exception not authenticated response
         );
@@ -56,16 +62,6 @@ public class SecurityConfig {
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
         return jwtAuthenticationConverter;
-    }
-
-    @Bean
-    JwtDecoder jwtDecoder() {
-        SecretKeySpec secretKeySpec = new SecretKeySpec(SIGNER_KEY.getBytes(), "HS512");
-
-        return NimbusJwtDecoder
-                .withSecretKey(secretKeySpec)
-                .macAlgorithm(MacAlgorithm.HS512)
-                .build();
     }
 
     @Bean
