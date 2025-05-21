@@ -3,8 +3,8 @@ package com.example.demo.service;
 import com.example.demo.dto.request.UserCreationRequest;
 import com.example.demo.dto.request.UserUpdateRequest;
 import com.example.demo.dto.response.UserResponse;
+import com.example.demo.entity.Role;
 import com.example.demo.entity.User;
-import com.example.demo.enums.Role;
 import com.example.demo.exception.AppException;
 import com.example.demo.exception.ErrorCode;
 import com.example.demo.mapper.UserMapper;
@@ -18,12 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -45,10 +45,10 @@ public class UserService implements IUserService {
         user.setPassword(_passwordEncoder.encode(request.getPassword()));
 
         // Set default role for user
-        HashSet<String> roles = new HashSet<>();
-        roles.add(Role.USER.name());
-//        TODO: user.setRoles(roles);
-
+        Set<Role> roles = new HashSet<>();
+        Role defaultRole = _roleRepository.findById("USER").orElseThrow(() -> new AppException(ErrorCode.DEFAULT_ROLE_NOT_EXISTED));
+        roles.add(defaultRole);
+        user.setRoles(roles);
         return _userMapper.toUserResponse(_userRepository.save(user));
     }
 
@@ -61,7 +61,8 @@ public class UserService implements IUserService {
     }
 
     @Override
-    @PostAuthorize("returnObject.username == authentication.name") // User can only see result if result's username == user's username
+    @PostAuthorize("returnObject.username == authentication.name")
+    // User can only see result if result's username == user's username
     public UserResponse getUser(String userId) {
         log.info("In method get User by Id");
         return _userMapper.toUserResponse(_userRepository.findById(userId)
