@@ -94,7 +94,7 @@ public class UserServiceTest {
                 .thenReturn(user);
 
         // WHEN
-        var response = _userService.createRequest(request);
+        var response = _userService.createUser(request);
 
         // THEN
         Assertions.assertThat(response.getId()).isEqualTo("acf0600f538b3");
@@ -109,7 +109,7 @@ public class UserServiceTest {
 
         // WHEN
         var exception = assertThrows(AppException.class,
-                () -> _userService.createRequest(request));
+                () -> _userService.createUser(request));
 
         Assertions.assertThat(exception.getErrorCode().getCode())
                 .isEqualTo(1002);
